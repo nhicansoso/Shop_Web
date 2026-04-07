@@ -1,0 +1,91 @@
+﻿@model List<SV22T1020293.Models.Sales.OrderViewInfo>
+@using SV22T1020293.Models.Sales
+
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+    string selectedStatus = ViewBag.SelectedStatus as string ?? "";
+    var totalAmounts = ViewBag.TotalAmounts as Dictionary<int, decimal>;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h3 class="fw-bold mb-0">Lịch sử đơn hàng</h3>
+    </div>
+
+    <form method="get" class="mb-4 d-flex align-items-center gap-2">
+        <label for="status" class="form-label mb-0">Trạng thái:</label>
+        <select id="status" name="status" class="form-select w-auto">
+            <option value="" selected="@(string.IsNullOrEmpty(selectedStatus))">Tất cả</option>
+            <option value="New" selected="@(selectedStatus == "New")">Chờ xác nhận</option>
+            <option value="Accepted" selected="@(selectedStatus == "Accepted")">Đã xác nhận</option>
+            <option value="Shipping" selected="@(selectedStatus == "Shipping")">Đang giao</option>
+            <option value="Completed" selected="@(selectedStatus == "Completed")">Hoàn tất</option>
+            <option value="Cancelled" selected="@(selectedStatus == "Cancelled")">Đã hủy</option>
+            <option value="Rejected" selected="@(selectedStatus == "Rejected")">Từ chối</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </form>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">Không có đơn hàng nào.</div>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var order in Model)
+            {
+                decimal totalAmount = (totalAmounts != null && totalAmounts.ContainsKey(order.OrderID))
+                ? totalAmounts[order.OrderID]
+                : 0;
+
+                <div class="list-group-item list-group-item-action mb-3 shadow-sm rounded-4 p-3">
+                    <div class="d-flex justify-content-between flex-wrap gap-3 align-items-center">
+                        <div>
+                            <p class="mb-1"><strong>Mã đơn:</strong> #@order.OrderID</p>
+                            <p class="mb-1"><strong>Ngày đặt:</strong> @order.OrderTime.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p class="mb-1"><strong>Địa chỉ:</strong> @order.DeliveryAddress, @order.DeliveryProvince</p>
+                            <p class="mb-1"><strong>Tổng tiền:</strong> <span class="text-danger">@totalAmount.ToString("N0") đ</span></p>
+                        </div>
+
+                        <div class="text-end">
+                            <p class="mb-1">
+                                <strong>Trạng thái:</strong>
+                                @if (order.Status == OrderStatusEnum.New)
+                                {
+                                    <span class="badge bg-secondary">Chờ xác nhận</span>
+                                }
+                                else if (order.Status == OrderStatusEnum.Accepted)
+                                {
+                                    <span class="badge bg-primary">Đã xác nhận</span>
+                                }
+                                else if (order.Status == OrderStatusEnum.Shipping)
+                                {
+                                    <span class="badge bg-info text-dark">Đang giao</span>
+                                }
+                                else if (order.Status == OrderStatusEnum.Completed)
+                                {
+                                    <span class="badge bg-success">Hoàn tất</span>
+                                }
+                                else if (order.Status == OrderStatusEnum.Cancelled)
+                                {
+                                    <span class="badge bg-danger">Đã hủy</span>
+                                }
+                                else if (order.Status == OrderStatusEnum.Rejected)
+                                {
+                                    <span class="badge bg-warning text-dark">Từ chối</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-dark">Không xác định</span>
+                                }
+                            </p>
+
+                            <a asp-action="Details" asp-route-id="@order.OrderID" class="btn btn-sm btn-outline-primary mt-2">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

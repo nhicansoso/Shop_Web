@@ -1,0 +1,107 @@
+﻿@using SV22T1020293.Shop
+@{
+    var userData = User.GetUserData();
+    string displayName = userData?.DisplayName ?? "Người dùng";
+    string photo = string.IsNullOrWhiteSpace(userData?.Photo)
+        ? "nophoto.png"
+        : userData.Photo;
+}
+
+<nav class="custom-header navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+
+        <!-- LEFT -->
+        <div class="d-flex align-items-center gap-3">
+
+            <a href="~/" class="shop-logo text-decoration-none">
+                MyShop<span>.</span>
+            </a>
+
+            <ul class="navbar-nav d-none d-md-flex flex-row gap-3 ms-3">
+                <li class="nav-item">
+                    <a href="~/" class="nav-link header-link">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Product" class="nav-link header-link">Sản phẩm</a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Order/History" class="nav-link header-link">Đơn đã mua</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- RIGHT -->
+        <ul class="navbar-nav ms-auto align-items-center gap-2">
+
+            @if (userData != null)
+            {
+                <!-- GIỎ HÀNG -->
+                <li class="nav-item">
+                    <a href="~/Cart" class="cart-button text-decoration-none">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Giỏ hàng</span>
+                    </a>
+                </li>
+
+                <!-- USER -->
+                <li class="nav-item dropdown user-menu">
+                    <a href="#" class="nav-link user-trigger d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <img src="~/images/employees/@photo"
+                             class="user-avatar rounded-circle shadow-sm"
+                             alt="Avatar" />
+                        <span class="d-none d-md-inline user-name">@displayName</span>
+                        <i class="fa-solid fa-chevron-down small text-muted"></i>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end user-dropdown shadow border-0">
+                        <li class="user-dropdown-header text-center">
+                            <img src="~/images/employees/@photo"
+                                 class="rounded-circle shadow-sm mb-2"
+                                 width="70" height="70"
+                                 alt="Avatar" />
+                            <h6 class="mb-0 fw-semibold">@displayName</h6>
+                            <small class="text-muted">Tài khoản người dùng</small>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a class="dropdown-item" href="~/Account/Profile">
+                                <i class="fa-regular fa-id-badge me-2"></i> Thông tin cá nhân
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="~/Account/ChangePassword">
+                                <i class="fa-solid fa-unlock-keyhole me-2"></i> Đổi mật khẩu
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a class="dropdown-item text-danger" href="~/Account/Logout">
+                                <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            }
+            else
+            {
+                <!-- CHƯA LOGIN -->
+                <li class="nav-item">
+                    <a href="~/Account/Login" class="btn-login text-decoration-none">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i> Đăng nhập
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="~/Account/Register" class="btn-register text-decoration-none">
+                        <i class="fa-solid fa-user-plus me-1"></i> Đăng ký
+                    </a>
+                </li>
+            }
+
+        </ul>
+    </div>
+</nav>

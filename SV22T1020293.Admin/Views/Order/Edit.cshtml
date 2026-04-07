@@ -1,0 +1,52 @@
+﻿@model SV22T1020293.Models.Sales.Order
+
+@{
+    bool isEdit = Model.OrderID > 0;
+    ViewData["Title"] = isEdit ? "Sửa đơn hàng" : "Tạo đơn hàng mới";
+}
+
+<div class="container mt-3">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4>@ViewData["Title"]</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="OrderID" />
+                }
+                <!-- Các field cần thiết -->
+                <div class="mb-3">
+                    <label asp-for="CustomerID" class="form-label">Khách hàng ID</label>
+                    <input asp-for="CustomerID" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="OrderTime" class="form-label">Thời gian đặt hàng</label>
+                    <input asp-for="OrderTime" type="datetime-local" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="DeliveryProvince" class="form-label">Tỉnh giao hàng</label>
+                    <input asp-for="DeliveryProvince" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="DeliveryAddress" class="form-label">Địa chỉ giao hàng</label>
+                    <input asp-for="DeliveryAddress" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="EmployeeID" class="form-label">Nhân viên ID</label>
+                    <input asp-for="EmployeeID" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label">Trạng thái</label>
+                    <input asp-for="Status" type="number" class="form-control" />
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

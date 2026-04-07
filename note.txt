@@ -1,0 +1,132 @@
+﻿Tạo solution có tên SV<MaSV>
+Bổ sung solution cho project:
+- ProjectName.Admin : ASP.NET core MVC
+- ProjectName.Shop : ASP.NET core MVC
+- ProjectName.Models,ProjectName.DataLayers,ProjectName.BusinessLayers : Class Libraly
+
+Thiết kế Layout cho Tên project.Admin
+- Sử dụng theme AdminLTE4(lib);
+- Thiết kế file _Layout.cshtml
+	- sử dụng @RenderBody() trong file chỉ 1 lần
+    - tách file _Layout thành 3 file _Footer,_Header,_Sidebar
+	- sử dụng        
+        @{
+            await Html.RenderPartialAsync("_Header");
+            await Html.RenderPartialAsync("_Sidebar");
+        }
+
+        để include trang và tách trang ra để gọn code
+        
+Tạo các Controller
+- Của người dùng: đăng nhập, đăng xuất, đổi mật khẩu   (clear)
+    + Account/Login
+    + Account/Logout
+    + Account/ChangePassword
+- Của nhà cung cấp: hiển thị danh sách, thêm,sửa,xoá nhà cung cấp
+    + Supplier/Index
+    + Supplier/Create
+    + Supplier/Delete/{id}
+    + Supplier/Edit/{id}
+- Của khách hàng:
+    + Customer/Index
+    + Customer/Create
+    + Customer/Edit/{id}
+    + Customer/Delete/{id}
+    + Customer/ChangePassword/{id};
+- Của shipper:
+    + Shipper/Index
+    + Shipper/Create
+    + Shipper/Delete/{id}
+    + Shipper/Edit/{id}
+- Của nhân viên:
+    + Employee/Index
+    + Employee/Create
+    + Employee/Edit/{id}
+    + Employee/Delete/{id}
+    + Employee/ChangePassword/{id}
+    + Employee/ChangeRole/{id}
+- Của loại hàng:
+    + Category/Index
+    + Category/Create
+    + Category/Edit/{id}
+    + Category/Delete/{id}
+- Của mặt hàng:
+
+- Product/Index
+- Product/Create
+- Product/Edit/{id}
+- Product/Delete/{id}
+- Product/ListAttributes/{id}
+- Product/CreateAttribute/{id}
+- Product/EditAttribute/{id}?attributeId={attributeId}
+- Product/DeleteAttribute/{id}?attributeId={attributeId}
+- Product/ListPhotos/{id}
+- Product/CreatePhoto/{id}
+- Product/EditPhoto/{id}?photoId={photoId}
+- Product/DeletePhoto/{id}?photoId={photoId}
+
+## Order
+- Order/Index
+- Order/Search
+- Order/Create
+- Order/Detail/{id}
+- Order/EditCartItem/{id}?productId={productId}
+- Order/DeleteCartItem/{id}?productId={productId}
+- Order/AddCartItem/{id}?productId={productId}?quantity?price
+- Order/ClearCart
+- Order/Accept/{id}
+- Order/Shipping/{id}
+- Order/Finish/{id}
+- Order/Reject/{id}
+- Order/Cancel/{id}
+- Order/Delete/{id}
+
+
+
+DataLayer:
+có hai thư mục :
+Interfaces : Khai báo các interfaces định nghĩa các phép xử lý dữ liệu cần cài đặt
+SQLServer : cài đặt các phép xử lý dữ liệu dựa trên định nghĩa từ interface
+- cần làm : xác định xem cài đặt những chức năng gì để đáp ứng được yêu cầu bài toán
+- với các dữ liệu trong model() : có chức năng tìm kiếm, lấy dữ liệu phân trang(đầu vào như nhau: ?page,pagesize? ; đầu ra khác kiểu dữ liệu), 
+                                 lấy được dữ liệu dựa vào id,bổ sung 1 bảng ghi,xoá một bản ghi,kiểm tra xem một bản ghi nào đó có dữ liệu liên 
+                                 quan hay không?
+- viết interface để mô tả chức năng cần làm
+- chưa đủ cho customer, employee vì thiếu chức năng kiểm tra email có bị trùng hay không
+
+trong lớp model có : entity(domain model),dto(biểu diễn các lớp truy vấn từ database khi entity không làm được),view model,input model
+Trong tuần
+- cài đặt package NewtonSoft.Json cho Admin
+- tạo thư mục AppCodes trong Admin
+- Copy file ApplicationContext.cs vào thư mục AppCodes (Chú ý sửa namespace)
+- sửa code cho file Program.cs theo code mẫu (Chú ý namespace)
+- build
+- bổ sung lớp Configuration cho businesslayer, DictionaryDataService
+
+- Khi action trả dữ liệu về cho view:
+    + mình phải biết được kiểu của dữ liệu action tuyền cho view là gì
+    + trong view phải khai báo kiểu dữ liệu nhận được từ action ,bằng lệnh @modal kiểu dữ liệu
+    + trong view, dữ liệu do action truyền ra được lưu trong thuộc tính có tên là modal(thông qua thuộc tính model để lấy được dữ liệu do action truyền ra)
+- một biến sesion lưu trong bộ nhớ server,mỗi phiên lm việc có 1 bộ nhớ riêng ,session biến mất trong ba tình huống:(chủ động xoá,đóng trình duyệt,timeout tồn tại trong 1 thời gian)
+- khi thực hiển tìm kiếm lưu lại điều kiện tìm kiếm trong session 
+- khi vào trang danh sách 
+
+//hàm CancelOrder trong sale kiểm tra đúng hay ch chỉ ra lỗi sai
+
+- Nếu hai controller trả về hai kiểu dữ liệu thì không dùng 1 view
+
+- Sài thư viện owin
+- Cơ chế chung (Đăng nhập, kiểm tra quyền)
+ + Người sử dụng cung cấp thông tin để hệ thống kiểm tra có được phép truy cập không(username,password,..)
+ + Hệ thống kiểm tra có hợp lệ không? Nếu hợp lệ thì cấp cho Client một chứng nhận(principal), Client lưu trữ
+ dưới dạng Cookie (Session là server lưu,Cookie là vào client)
+ + Client "xuất trình" chứng nhận(Cookie) cho server mỗi khi thực hiện request (Nằm trong header của lời gọi)
+ + Server dựa vào cookie để kiểm tra xem người dùng có được phép sử dụng chức năng hay không
+ - Hai thao tác:
+ + Authentication(ở dấu cộng số 2)
+ + Authorzization (ở dấu cộng số 4)
+ - Nếu muốn đăng nhập trước khi vào trang thì đặt Authozize vào controller của trang đó
+ - Nếu đặt Authorzire ở hai vị trí: trước controller nghĩa là dặt toàn bộ các action trong controller,trước action nghĩa là chỉ mình action đó ảnh hưởng
+ - AllowAnonymous là cho phép hiển thị khi mặc dù có authorize ở controller 
+ - Trong view hoặc trong các action (của Controller), thông qua thuộc tính User để lấy được principal (giấy chứng nhận) của người dùng đã đăng nhập,kiểm tra xem đã đăng nhập hay chưa
+    + hàm có mũi tên extension (cho phép xây dựng thêm các hàm của một lớp mà không cần can thiệp vào lớp đó đảm bảo nguyên lý đóng gói của lập trình hướng đối tượng)

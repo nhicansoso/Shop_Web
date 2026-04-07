@@ -1,0 +1,401 @@
+﻿/* =========================================================
+   1. ROOT & GLOBAL
+========================================================= */
+:root {
+    --primary-color: #4F46E5;
+    --primary-hover: #4338CA;
+    --secondary-color: #10B981;
+    --text-main: #1E293B;
+    --text-muted: #64748B;
+    --bg-main: #F8FAFC;
+    --bg-white: #FFFFFF;
+    --border-color: #E2E8F0;
+    --transition-speed: 0.3s;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem 0 3rem;
+}
+
+/* =========================================================
+   2. HEADER & NAVIGATION
+========================================================= */
+.custom-header {
+    background-color: var(--bg-white);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    padding: 10px 0;
+}
+
+.menu-toggle {
+    font-size: 1.5rem;
+    color: var(--text-main);
+    transition: color var(--transition-speed);
+}
+
+    .menu-toggle:hover,
+    .header-link:hover,
+    .footer-custom a:hover {
+        color: var(--primary-color);
+    }
+
+.shop-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+}
+
+    .shop-logo span {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        line-height: 0;
+    }
+
+.header-link {
+    color: var(--text-muted);
+    font-weight: 500;
+    position: relative;
+    transition: color var(--transition-speed);
+}
+
+    .header-link::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--primary-color);
+        transform: translateX(-50%);
+        transition: all var(--transition-speed);
+    }
+
+    .header-link:hover::after {
+        width: 80%;
+    }
+
+/* =========================================================
+   3. BUTTONS (CART / AUTH)
+========================================================= */
+.cart-button,
+.btn-login,
+.btn-register {
+    font-weight: 600;
+    transition: all var(--transition-speed);
+}
+
+.cart-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    font-size: 0.95rem;
+}
+
+    .cart-button:hover {
+        background-color: var(--primary-color);
+        color: var(--bg-white);
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+    }
+
+.btn-login,
+.btn-register {
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+}
+
+.btn-login {
+    color: var(--primary-color);
+}
+
+    .btn-login:hover {
+        background-color: var(--primary-color);
+        color: var(--bg-white);
+    }
+
+.btn-register {
+    background-color: var(--primary-color);
+    color: var(--bg-white) !important;
+}
+
+/* =========================================================
+   4. USER DROPDOWN
+========================================================= */
+.user-trigger {
+    padding: 4px 12px;
+    border-radius: 50px;
+    transition: background-color var(--transition-speed);
+}
+
+    .user-trigger:hover {
+        background-color: var(--bg-main);
+    }
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border: 2px solid var(--border-color);
+}
+
+.user-dropdown {
+    min-width: 240px;
+    border-radius: 12px;
+    padding: 10px 0;
+    margin-top: 10px !important;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.user-dropdown-header,
+.dropdown-item {
+    padding: 10px 20px;
+}
+
+.dropdown-item {
+    font-weight: 500;
+    color: var(--text-main);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+    .dropdown-item:hover {
+        background-color: var(--bg-main);
+        color: var(--primary-color);
+    }
+
+    .dropdown-item.text-danger:hover {
+        background-color: #FEF2F2;
+        color: #DC2626 !important;
+    }
+
+/* =========================================================
+   5. FOOTER
+========================================================= */
+.footer-custom {
+    background-color: var(--bg-white);
+    border-top: 1px solid var(--border-color);
+    padding: 20px 0;
+    margin-top: auto;
+}
+
+    .footer-custom p,
+    .footer-custom a {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+
+/* =========================================================
+   6. ANIMATION
+========================================================= */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   7. AUTH PAGES
+========================================================= */
+body.login-page {
+    background-color: var(--bg-main) !important;
+    background-image: radial-gradient(circle at 50% -20%, #e0e7ff 0%, transparent 60%) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.login-logo {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+    .login-logo a {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--text-main) !important;
+        text-decoration: none;
+        letter-spacing: -0.5px;
+    }
+
+        .login-logo a b {
+            color: var(--primary-color);
+            font-weight: 800;
+        }
+
+.login-box .card {
+    background-color: var(--bg-white);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.login-card-body {
+    padding: 2.5rem !important;
+    border-radius: 20px;
+}
+
+.login-box-msg {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-align: center;
+    padding: 0 0 1.5rem;
+}
+
+/* Input group login */
+.login-box .input-group .form-control,
+.login-box .input-group .input-group-text {
+    border: 1.5px solid var(--border-color);
+    transition: all var(--transition-speed);
+    box-shadow: none !important;
+}
+
+.login-box .input-group .form-control {
+    border-radius: 10px 0 0 10px;
+    border-right: none;
+    padding: 12px 15px;
+    color: var(--text-main);
+}
+
+.login-box .input-group .input-group-text {
+    border-radius: 0 10px 10px 0;
+    border-left: none;
+    background-color: transparent;
+    color: var(--text-muted);
+}
+
+.login-box .input-group:focus-within .form-control,
+.login-box .input-group:focus-within .input-group-text {
+    border-color: var(--primary-color);
+}
+
+.login-box .input-group:focus-within .input-group-text {
+    color: var(--primary-color);
+}
+
+/* Button login */
+.login-box .btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all var(--transition-speed);
+    margin-top: 10px;
+}
+
+    .login-box .btn-primary:hover,
+    .login-box .btn-primary:focus {
+        background-color: var(--primary-hover) !important;
+        border-color: var(--primary-hover) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(79, 70, 229, 0.25);
+    }
+
+/* Link auth */
+.auth-link {
+    color: var(--primary-color);
+    margin-left: 5px;
+    transition: color 0.2s;
+}
+
+    .auth-link:hover {
+        color: var(--primary-hover);
+        text-decoration: underline !important;
+    }
+
+/* Input register */
+.custom-input-reg {
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px 15px;
+    color: var(--text-main);
+    box-shadow: none !important;
+    transition: all var(--transition-speed);
+}
+
+    .custom-input-reg:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+    }
+
+/* =========================================================
+   8. PROFILE PAGE
+========================================================= */
+.profile-card {
+    border-top: 4px solid var(--primary-color) !important;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+    .profile-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+    }
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.info-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    background-color: #EEF2FF;
+    border-radius: 8px;
+    padding: 6px;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.row:hover .info-icon {
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+}

@@ -1,0 +1,81 @@
+﻿@model ProductSearchInput
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<div class="home-page">
+
+    <section class="hero-section py-5 bg-light">
+        <div class="container text-center">
+            <h1 class="fw-bold">Mua sắm hiện đại</h1>
+            <p class="text-muted">Khám phá hàng ngàn sản phẩm chất lượng</p>
+        </div>
+    </section>
+
+    <section class="py-4 bg-white border-bottom">
+        <div class="container">
+
+            <form id="formSearch"
+                  method="get"
+                  action="/Product/Search"
+                  data-target="productResult"
+                  onsubmit="paginationSearch(event, this, 1)">
+
+                <input type="hidden" asp-for="PageSize" />
+
+                <div class="row g-2">
+
+                    <div class="col-md-3">
+                        <select class="form-select"
+                                asp-for="CategoryID"
+                                asp-items="await SelectListHelper.Categories()">
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select class="form-select"
+                                asp-for="SupplierID"
+                                asp-items="await SelectListHelper.Suppliers()">
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input asp-for="MinPrice" type="number" class="form-control" placeholder="Từ giá" />
+                            <span class="input-group-text">-</span>
+                            <input asp-for="MaxPrice" type="number" class="form-control" placeholder="Đến giá" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input asp-for="SearchValue"
+                                   class="form-control"
+                                   placeholder="Tên sản phẩm..." />
+                            <button class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div id="productResult"></div>
+        </div>
+    </section>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            paginationSearch(null, document.getElementById("formSearch"), 1);
+        });
+    </script>
+}
