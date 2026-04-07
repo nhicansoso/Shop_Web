@@ -118,7 +118,7 @@ namespace SV22T1020293.Admin.Controllers
         [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
         {
-
+            // Validate dữ liệu đầu vào
             if (string.IsNullOrWhiteSpace(model.OldPassword))
                 ModelState.AddModelError(nameof(model.OldPassword), "Vui lòng nhập mật khẩu cũ");
 
@@ -138,10 +138,12 @@ namespace SV22T1020293.Admin.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
+            // Lấy thông tin user
             var userData = User.GetUserData();
             if (userData == null)
                 return RedirectToAction("Login");
 
+            // Kiểm tra mật khẩu cũ
             string oldPasswordHash = CryptHelper.HashMD5(model.OldPassword);
             var account = await SecurityDataService.AuthorizeAsync(userData.UserName ?? "", oldPasswordHash);
             if (account == null)
@@ -150,6 +152,7 @@ namespace SV22T1020293.Admin.Controllers
                 return View(model);
             }
 
+            // Đổi mật khẩu mới
             string newPasswordHash = CryptHelper.HashMD5(model.NewPassword);
             bool result = await SecurityDataService.ChangePasswordAsync(userData.UserName ?? "", newPasswordHash);
 
@@ -158,10 +161,9 @@ namespace SV22T1020293.Admin.Controllers
                 ModelState.AddModelError(string.Empty, "Đổi mật khẩu thất bại");
                 return View(model);
             }
+            TempData["SuccessMessage"] = "Đổi mật khẩu thành công";
 
-            ModelState.AddModelError(string.Empty, "Đổi mật khẩu thành công");
-
-            return View(model);
+            return RedirectToAction("ChangePassword");
         }
 
         public IActionResult AccessDenied()
