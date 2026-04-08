@@ -17,69 +17,74 @@
 
             <div class="card shadow-sm border-0 rounded-4 p-3 p-md-4 profile-card" style="background-color: var(--bg-white);">
 
-                <!-- Header -->
                 <div class="mb-4 pb-3 border-bottom border-light">
                     <h5 class="fw-bold m-0" style="color: var(--text-main);">Chỉnh sửa thông tin</h5>
                 </div>
 
-                <div class="mb-3">
-                    @if (ViewData.ModelState.TryGetValue(string.Empty, out var entry))
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (ViewData.ModelState.TryGetValue(string.Empty, out var entry))
+                {
+                    foreach (var error in entry.Errors)
                     {
-                        foreach (var error in entry.Errors)
-                        {
-                            <div class="alert @(error.ErrorMessage.Contains("thành công") ? "alert-success" : "alert-danger") alert-dismissible fade show" role="alert">
-                                <i class="bi @(error.ErrorMessage.Contains("thành công") ? "bi-check-circle-fill" : "bi-exclamation-triangle-fill") me-2"></i>
-                                @error.ErrorMessage
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        }
+                        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            @error.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     }
-                </div>
+                }
 
                 <form asp-action="EditProfile" asp-controller="Account" method="post">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="CustomerID" />
 
                     <div class="row g-3">
 
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Họ và tên</label>
-                            <input asp-for="CustomerName" class="form-control rounded-3" />
+                            <input asp-for="CustomerName" class="form-control rounded-3" placeholder="Nhập họ và tên" />
                             <span asp-validation-for="CustomerName" class="text-danger small"></span>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Tên giao dịch</label>
-                            <input asp-for="ContactName" class="form-control rounded-3" />
+                            <input asp-for="ContactName" class="form-control rounded-3" placeholder="Nhập tên giao dịch" />
                             <span asp-validation-for="ContactName" class="text-danger small"></span>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Số điện thoại</label>
-                            <input asp-for="Phone" class="form-control rounded-3" />
+                            <input asp-for="Phone" class="form-control rounded-3" placeholder="Nhập số điện thoại" />
                             <span asp-validation-for="Phone" class="text-danger small"></span>
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Email</label>
-                            <input asp-for="Email" class="form-control rounded-3" />
+                            <input asp-for="Email" class="form-control rounded-3" placeholder="Nhập email" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
                         <div class="col-12">
                             <label class="form-label fw-semibold">Địa chỉ</label>
-                            <input asp-for="Address" class="form-control rounded-3" />
+                            <input asp-for="Address" class="form-control rounded-3" placeholder="Nhập địa chỉ" />
                             <span asp-validation-for="Address" class="text-danger small"></span>
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold small text-muted">Tỉnh / Thành</label>
-                            <select class="form-select custom-input-reg" asp-for="Province"
+                            <label class="form-label fw-semibold">Tỉnh / Thành</label>
+                            <select class="form-select rounded-3" asp-for="Province"
                                     asp-items="await SelectListHelper.Provinces()">
                             </select>
                             <span asp-validation-for="Province" class="text-danger small"></span>
                         </div>
 
-                        <!-- Nút hành động -->
                         <div class="col-12 mt-4">
                             <div class="d-flex justify-content-end gap-2">
                                 <a href="~/" class="btn btn-light rounded-3 px-4">
@@ -99,3 +104,17 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        setTimeout(function () {
+            let alertBox = document.querySelector('.alert');
+            if (alertBox) {
+                let bsAlert = bootstrap.Alert.getOrCreateInstance(alertBox);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
+}

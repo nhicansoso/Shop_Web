@@ -45,11 +45,6 @@ namespace SV22T1020293.Admin.Controllers
             // mã hóa MD5 password
             password = CryptHelper.HashMD5(password);
 
-            //TODO: kiểm tra xem tên đăng nhập và mật khẩu có đúng ko (gọi xuống service để kt)
-            // tạo authorize (interface/ repository)
-            // tạo SecurityDataService
-            //EmployeeAuthorizeAsync(User, password) hàm kt
-            // var userAccount = await SecurityDataService.EmployeeAuthorizeAsync(User, password); lấy từ database để kt
             var userAccount = await SecurityDataService.AuthorizeAsync(username, password);
 
             if (userAccount == null)

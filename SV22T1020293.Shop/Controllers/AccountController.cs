@@ -87,54 +87,60 @@ namespace SV22T1020293.Shop.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-            // Kiểm tra mật khẩu rỗng
-            if (string.IsNullOrWhiteSpace(model.Password))
-            {
-                ModelState.AddModelError("Password", "Vui lòng nhập mật khẩu");
-                return View(model);
-            }
-            // Kiểm tra độ dài mật khẩu
-            if (model.Password.Length < 6)
-            {
-                ModelState.AddModelError("Password", "Mật khẩu phải có ít nhất 6 ký tự");
-                return View(model);
-            }
-            // Kiểm tra xác nhận mật khẩu
-            if (model.Password != model.ConfirmPassword)
-            {
-                ModelState.AddModelError("ConfirmPassword", "Mật khẩu xác nhận không khớp");
-                return View(model);
-            }
-            //Kiểm tra số điện thoại
-            if (string.IsNullOrWhiteSpace(model.Phone))
-            {
-                ModelState.AddModelError("Phone", "Vui lòng nhập số điện thoại");
-                return View(model);
-            }
+            var userData = User.GetUserData();
+            // Chuẩn hóa dữ liệu trước
+            model.CustomerName = model.CustomerName?.Trim() ?? "";
+            model.ContactName = model.ContactName?.Trim() ?? "";
+            model.Email = model.Email?.Trim() ?? "";
+            model.Phone = model.Phone?.Trim() ?? "";
+            model.Address = model.Address?.Trim() ?? "";
+            model.Province = model.Province?.Trim() ?? "";
 
+            // Kiểm tra tên khách hàng
+            if (string.IsNullOrWhiteSpace(model.CustomerName))
+                ModelState.AddModelError(nameof(model.CustomerName), "Vui lòng nhập tên khách hàng");
 
-            // Xóa khoảng trắng
-            model.Phone = model.Phone.Trim();
-            model.CustomerName = model.CustomerName.Trim();
-            model.ContactName = model.ContactName.Trim();
-            model.Email = model.Email.Trim();
-            // Chỉ cho nhập số
-            if (!System.Text.RegularExpressions.Regex.IsMatch(model.Phone, @"^0\d{9}$|^0\d{10}$"))
-            {
-                ModelState.AddModelError("Phone", "Số điện thoại không hợp lệ");
-                return View(model);
-            }
-            // Kiểm tra email có tồn tại chưa
+            // Kiểm tra tên giao dịch
+            if (string.IsNullOrWhiteSpace(model.ContactName))
+                ModelState.AddModelError(nameof(model.ContactName), "Vui lòng nhập tên giao dịch");
+
+            // Kiểm tra email
+            if (string.IsNullOrWhiteSpace(model.Email))
+                ModelState.AddModelError(nameof(model.Email), "Vui lòng nhập email");
             bool emailValid = await PartnerDataService.ValidatelCustomerEmailAsync(model.Email);
             if (!emailValid)
             {
-                ModelState.AddModelError("Email", "Email đã được sử dụng");
-                return View(model);
+                ModelState.AddModelError(nameof(model.Email), "Email đã được sử dụng");
             }
+            // Kiểm tra tỉnh/thành
+            if (string.IsNullOrWhiteSpace(model.Province))
+                ModelState.AddModelError(nameof(model.Province), "Vui lòng chọn tỉnh / thành");
+
+            // Kiểm tra mật khẩu
+            if (string.IsNullOrWhiteSpace(model.Password))
+                ModelState.AddModelError(nameof(model.Password), "Vui lòng nhập mật khẩu");
+            else if (model.Password.Length < 6)
+                ModelState.AddModelError(nameof(model.Password), "Mật khẩu phải có ít nhất 6 ký tự");
+
+            // Kiểm tra xác nhận mật khẩu
+            if (string.IsNullOrWhiteSpace(model.ConfirmPassword))
+                ModelState.AddModelError(nameof(model.ConfirmPassword), "Vui lòng nhập xác nhận mật khẩu");
+            else if (model.Password != model.ConfirmPassword)
+                ModelState.AddModelError(nameof(model.ConfirmPassword), "Mật khẩu xác nhận không khớp");
+
+            // Kiểm tra số điện thoại
+            if (string.IsNullOrWhiteSpace(model.Phone))
+                ModelState.AddModelError(nameof(model.Phone), "Vui lòng nhập số điện thoại");
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Phone, @"^0\d{9}$|^0\d{10}$"))
+                ModelState.AddModelError(nameof(model.Phone), "Số điện thoại không hợp lệ");
+
+            // Nếu đã có lỗi cơ bản thì dừng ở đây
+            if (!ModelState.IsValid)
+                return View(model);
+
             // Hash password
             string passwordHash = CryptHelper.HashMD5(model.Password);
+
             // Tạo khách hàng mới
             var customer = new Customer
             {
@@ -142,17 +148,20 @@ namespace SV22T1020293.Shop.Controllers
                 ContactName = model.ContactName,
                 Email = model.Email,
                 Password = passwordHash,
-                Phone = model.Phone ?? "",
-                Address = model.Address ?? "",
-                Province = model.Province ?? "",
+                Phone = model.Phone,
+                Address = model.Address,
+                Province = model.Province,
                 IsLocked = false
             };
+
             int customerId = await PartnerDataService.AddCustomerAsync(customer);
             if (customerId <= 0)
             {
-                ModelState.AddModelError("Error", "Đăng ký thất bại, vui lòng thử lại sau");
+                ModelState.AddModelError(string.Empty, "Đăng ký thất bại, vui lòng thử lại sau");
                 return View(model);
             }
+
+            TempData["SuccessMessage"] = "Đăng ký tài khoản thành công! Vui lòng đăng nhập.";
             return RedirectToAction("Login");
         }
 
@@ -171,7 +180,6 @@ namespace SV22T1020293.Shop.Controllers
         /// <summary>
         /// Đổi mật khẩu
         /// </summary>
-        /// <returns></returns>
         [HttpGet]
         [Authorize]
         public IActionResult ChangePassword()
@@ -182,61 +190,73 @@ namespace SV22T1020293.Shop.Controllers
         /// <summary>
         /// Xử lý đổi mật khẩu
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
         {
-            // Validation
-            if (string.IsNullOrWhiteSpace(model.OldPassword))
-                ModelState.AddModelError(nameof(model.OldPassword), "Vui lòng nhập mật khẩu cũ");
-
-            if (string.IsNullOrWhiteSpace(model.NewPassword))
-                ModelState.AddModelError(nameof(model.NewPassword), "Vui lòng nhập mật khẩu mới");
-
-            if (string.IsNullOrWhiteSpace(model.ConfirmPassword))
-                ModelState.AddModelError(nameof(model.ConfirmPassword), "Vui lòng nhập lại mật khẩu mới");
-
-            if (model.NewPassword.Length < 6)
+            try
             {
-                ModelState.AddModelError(nameof(model.NewPassword), "Mật khẩu phải có ít nhất 6 ký tự");
+
+                if (string.IsNullOrWhiteSpace(model.OldPassword))
+                    ModelState.AddModelError(nameof(model.OldPassword), "Vui lòng nhập mật khẩu cũ");
+
+                if (string.IsNullOrWhiteSpace(model.NewPassword))
+                    ModelState.AddModelError(nameof(model.NewPassword), "Vui lòng nhập mật khẩu mới");
+
+                if (string.IsNullOrWhiteSpace(model.ConfirmPassword))
+                    ModelState.AddModelError(nameof(model.ConfirmPassword), "Vui lòng nhập lại mật khẩu mới");
+
+                if (!string.IsNullOrWhiteSpace(model.NewPassword) && model.NewPassword.Length < 6)
+                    ModelState.AddModelError(nameof(model.NewPassword), "Mật khẩu phải có ít nhất 6 ký tự");
+
+                if (!string.IsNullOrWhiteSpace(model.NewPassword) &&
+                    !string.IsNullOrWhiteSpace(model.ConfirmPassword) &&
+                    model.NewPassword != model.ConfirmPassword)
+                {
+                    ModelState.AddModelError(nameof(model.ConfirmPassword), "Mật khẩu xác nhận không khớp");
+                }
+
+                if (!ModelState.IsValid)
+                    return View(model);
+
+                var userData = User.GetUserData();
+                if (userData == null)
+                    return RedirectToAction("Login");
+
+                string oldPasswordHash = CryptHelper.HashMD5(model.OldPassword);
+                var account = await SecurityDataService.AuthorizeAsync(userData.UserName ?? "", oldPasswordHash);
+
+                if (account == null)
+                {
+                    ModelState.AddModelError(nameof(model.OldPassword), "Mật khẩu cũ không đúng");
+                    return View(model);
+                }
+
+                string newPasswordHash = CryptHelper.HashMD5(model.NewPassword);
+                if (oldPasswordHash == newPasswordHash)
+                {
+                    ModelState.AddModelError(nameof(model.NewPassword), "Mật khẩu mới không được trùng mật khẩu cũ");
+                    return View(model);
+                }
+
+                bool result = await SecurityDataService.ChangePasswordAsync(userData.UserName ?? "", newPasswordHash);
+
+                if (!result)
+                {
+                    ModelState.AddModelError(string.Empty, "Đổi mật khẩu thất bại");
+                    return View(model);
+                }
+
+                TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";
+
+                return RedirectToAction("ChangePassword");
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Hệ thống đang bận. Vui lòng thử lại sau.");
                 return View(model);
             }
-            if (!string.IsNullOrWhiteSpace(model.NewPassword) &&
-                !string.IsNullOrWhiteSpace(model.ConfirmPassword) &&
-                model.NewPassword != model.ConfirmPassword)
-            {
-                ModelState.AddModelError(nameof(model.ConfirmPassword), "Mật khẩu xác nhận không khớp");
-            }
-
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var userData = User.GetUserData();
-            if (userData == null)
-                return RedirectToAction("Login");
-
-            string oldPasswordHash = CryptHelper.HashMD5(model.OldPassword);
-            var account = await SecurityDataService.AuthorizeAsync(userData.UserName ?? "", oldPasswordHash);
-            if (account == null)
-            {
-                ModelState.AddModelError(nameof(model.OldPassword), "Mật khẩu cũ không đúng");
-                return View(model);
-            }
-
-            // Hash mật khẩu mới
-            string newPasswordHash = CryptHelper.HashMD5(model.NewPassword);
-            bool result = await SecurityDataService.ChangePasswordAsync(userData.UserName ?? "", newPasswordHash);
-
-            if (!result)
-            {
-                ModelState.AddModelError(string.Empty, "Đổi mật khẩu thất bại");
-                return View(model);
-            }
-
-            ModelState.AddModelError(string.Empty, "Đổi mật khẩu thành công");
-            return View(model);
         }
         /// <summary>
         /// Hiển thị thông tin cá nhân của người dùng đang đăng nhập
@@ -262,57 +282,102 @@ namespace SV22T1020293.Shop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditProfile(Customer model)
         {
-            var userData = User.GetUserData();
-
-            if (userData == null)
-                return RedirectToAction("Login");
-
-            model.CustomerID = Convert.ToInt32(userData.UserId);
-
-            if (string.IsNullOrWhiteSpace(model.CustomerName))
-                ModelState.AddModelError(nameof(model.CustomerName), "Vui lòng nhập họ tên");
-
-            if (string.IsNullOrWhiteSpace(model.ContactName))
-                ModelState.AddModelError(nameof(model.ContactName), "Vui lòng nhập tên giao dịch");
-
-            if (string.IsNullOrWhiteSpace(model.Email))
-                ModelState.AddModelError(nameof(model.Email), "Vui lòng nhập email");
-
-            if (string.IsNullOrWhiteSpace(model.Province))
-                ModelState.AddModelError(nameof(model.Province), "Vui lòng chọn tỉnh / thành");
-
-            bool emailValid = await PartnerDataService.ValidatelCustomerEmailAsync(model.Email, model.CustomerID);
-            if (!emailValid)
-                ModelState.AddModelError(nameof(model.Email), "Email đã được sử dụng");
-
-            if (!ModelState.IsValid)
-                return View("Profile", model);
-
-            bool result = await PartnerDataService.UpdateCustomerAsync(model);
-
-            if (!result)
+            try
             {
-                ModelState.AddModelError(string.Empty, "Cập nhật thông tin thất bại");
+                var userData = User.GetUserData();
+
+                if (userData == null)
+                    return RedirectToAction("Login");
+
+                model.CustomerID = Convert.ToInt32(userData.UserId);
+
+                // Chuẩn hóa dữ liệu
+                model.CustomerName = model.CustomerName?.Trim() ?? "";
+                model.ContactName = model.ContactName?.Trim() ?? "";
+                model.Email = model.Email?.Trim() ?? "";
+                model.Phone = model.Phone?.Trim() ?? "";
+                model.Address = model.Address?.Trim() ?? "";
+                model.Province = model.Province?.Trim() ?? "";
+
+
+                // Tên khách hàng
+                if (string.IsNullOrWhiteSpace(model.CustomerName))
+                    ModelState.AddModelError(nameof(model.CustomerName), "Vui lòng nhập họ và tên");
+
+                // Tên giao dịch
+                if (string.IsNullOrWhiteSpace(model.ContactName))
+                    ModelState.AddModelError(nameof(model.ContactName), "Vui lòng nhập tên giao dịch");
+
+                // Email
+                if (string.IsNullOrWhiteSpace(model.Email))
+                {
+                    ModelState.AddModelError(nameof(model.Email), "Vui lòng nhập email");
+                }
+                else if (!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(model.Email))
+                {
+                    ModelState.AddModelError(nameof(model.Email), "Email không hợp lệ");
+                }
+                else
+                {
+                    // Chỉ kiểm tra trùng nếu user đổi email
+                    if (!string.Equals(model.Email, userData.Email, StringComparison.OrdinalIgnoreCase))
+                    {
+                        bool emailValid = await PartnerDataService.ValidatelCustomerEmailAsync(model.Email);
+                        if (!emailValid)
+                        {
+                            ModelState.AddModelError(nameof(model.Email), "Email đã được sử dụng");
+                        }
+                    }
+                }
+
+                // Số điện thoại
+                if (string.IsNullOrWhiteSpace(model.Phone))
+                {
+                    ModelState.AddModelError(nameof(model.Phone), "Vui lòng nhập số điện thoại");
+                }
+                else if (!System.Text.RegularExpressions.Regex.IsMatch(model.Phone, @"^0\d{9,10}$"))
+                {
+                    ModelState.AddModelError(nameof(model.Phone), "Số điện thoại không hợp lệ");
+                }
+
+                // Tỉnh / Thành
+                if (string.IsNullOrWhiteSpace(model.Province))
+                    ModelState.AddModelError(nameof(model.Province), "Vui lòng chọn tỉnh / thành");
+
+                if (!ModelState.IsValid)
+                    return View("Profile", model);
+
+                bool result = await PartnerDataService.UpdateCustomerAsync(model);
+
+                if (!result)
+                {
+                    ModelState.AddModelError(string.Empty, "Cập nhật thông tin thất bại");
+                    return View("Profile", model);
+                }
+
+                var newUserData = new WebUserData()
+                {
+                    UserId = model.CustomerID.ToString(),
+                    UserName = userData.UserName,
+                    DisplayName = model.CustomerName,
+                    Email = model.Email
+                };
+
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    newUserData.CreatePrincipal()
+                );
+
+                TempData["SuccessMessage"] = "Cập nhật thông tin thành công!";
+
+                return RedirectToAction("Profile");
+            }
+            catch
+            {
+                ModelState.AddModelError(string.Empty, "Hệ thống đang bận. Vui lòng thử lại sau.");
                 return View("Profile", model);
             }
-
-            var newUserData = new WebUserData()
-            {
-                UserId = model.CustomerID.ToString(),
-                UserName = userData.UserName,
-                DisplayName = model.CustomerName,
-                Email = model.Email
-            };
-
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                newUserData.CreatePrincipal()
-            );
-
-            ModelState.AddModelError(string.Empty, "Cập nhật thông tin thành công");
-
-            return View("Profile", model);
         }
 
         public IActionResult AccessDenied()

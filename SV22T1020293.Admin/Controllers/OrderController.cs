@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using SV221020645.BusinessLayers;
 using SV22T1020293.BusinessLayers;
 using SV22T1020293.Models.Catalog;
+using SV22T1020293.Models.Common;
 using SV22T1020293.Models.Sales;
 
 namespace SV22T1020293.Admin.Controllers
@@ -48,12 +49,29 @@ namespace SV22T1020293.Admin.Controllers
         {
             if (input.PageSize <= 0)
                 input.PageSize = 10;
+            if (input.DateFrom.HasValue && input.DateTo.HasValue && input.DateFrom.Value.Date > input.DateTo.Value.Date)
+            {
+                ViewBag.SearchError = "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu";
 
+                var emptyInput = new OrderSearchInput()
+                {
+                    Page = input.Page,
+                    PageSize = input.PageSize,
+                    SearchValue = input.SearchValue,
+                    Status = input.Status,
+                    DateFrom = null,
+                    DateTo = null
+                };
+
+                var emptyResult = await SalesDataService.ListOrdersAsync(emptyInput);
+                ApplicationContext.SetSessionData(SEARCH_ORDER, emptyInput);
+                return PartialView(emptyResult);
+            }
             var result = await SalesDataService.ListOrdersAsync(input);
 
             ApplicationContext.SetSessionData(SEARCH_ORDER, input);
 
-            return View(result);
+            return PartialView(result);
         }
 
         private const string SEARCH_PRODUCT = "SearchProductToSale";

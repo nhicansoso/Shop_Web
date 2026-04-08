@@ -107,9 +107,6 @@ namespace SV22T1020293.Admin.Controllers
 
                 ViewBag.Title = data.ProductID == 0 ? "Thêm sản phẩm" : "Cập nhật sản phẩm";
 
-                //TODO : Kiểm tra tính hợp lệ của dữ liệu và thông báo lỗi nếu dl không hợp lệ
-
-                //sử dụng ModeState để kiểm soát thông báo lỗi và gửi thông báo lỗi cho view
                 if (string.IsNullOrWhiteSpace(data.ProductName))
                     ModelState.AddModelError(nameof(data.ProductName), "Vui lòng nhập tên mặt hàng");
 
@@ -125,8 +122,6 @@ namespace SV22T1020293.Admin.Controllers
                 if (data.Price <= 0)
                     ModelState.AddModelError(nameof(data.Price), "Vui lòng nhập giá bán hợp lệ");
 
-                // cac ô có thể để tróng thì :
-                //điều chỉnh lại các giá trị dữ liệu khác theo quy định/quy ước của app
                 if (string.IsNullOrEmpty(data.ProductDescription)) data.ProductDescription = "";
                 if (string.IsNullOrEmpty(data.Photo)) data.Photo = "";
 
@@ -166,13 +161,16 @@ namespace SV22T1020293.Admin.Controllers
                 // Yêu cầu DL vào csdl
                 if (data.ProductID == 0)
                 {
-                    await CatalogDataService.AddProductAsync(data);
+                    int newProductID = await CatalogDataService.AddProductAsync(data);
+                    TempData["SuccessMessage"] = "Thêm sản phẩm thành công!";
+                    return RedirectToAction("Edit", new { id = newProductID });
                 }
                 else
                 {
                     await CatalogDataService.UpdateProductAsync(data);
+                    TempData["SuccessMessage"] = "Cập nhật sản phẩm thành công!";
+                    return RedirectToAction("Edit", new { id = data.ProductID });
                 }
-                return RedirectToAction("Index");
             }
 
             catch //(Exception ex)

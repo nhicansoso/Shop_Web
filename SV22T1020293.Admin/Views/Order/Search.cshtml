@@ -3,7 +3,13 @@
 @{
     Layout = null;
 }
-
+@if (ViewBag.SearchError != null)
+{
+    <div class="alert alert-danger d-flex align-items-center mb-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>@ViewBag.SearchError</div>
+    </div>
+}
 <div class="mb-2 text-muted">
     Danh sách này có <strong>@Model.RowCount</strong> đơn hàng
 </div>

@@ -4,43 +4,45 @@
 }
 
 @section PageToolBar {
-    <div class="btn-group">
-        <button type="button"
-                class="btn btn-primary dropdown-toggle"
-                data-bs-toggle="dropdown">
-            <i class="bi bi-gear me-1"></i>
-            Xử lý đơn hàng
-        </button>
-        <ul class="dropdown-menu">
-            @* <li><a class="dropdown-item open-modal" href="~/Order/Accept/123">Duyệt đơn hàng</a></li>
-            <li><a class="dropdown-item open-modal" href="~/Order/Shipping/123">Chuyển giao hàng</a></li>
-            <li><a class="dropdown-item open-modal" href="~/Order/Finish/123">Hoàn tất đơn hàng</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger open-modal" href="~/Order/Cancel/123">Hủy đơn hàng</a></li>
-            <li><a class="dropdown-item text-danger open-modal" href="~/Order/Reject/123">Từ chối đơn hàng</a></li> *@
-            @if (Model.Status == OrderStatusEnum.New)
-            {
-                <li><a class="dropdown-item open-modal" href="~/Order/Accept/@Model.OrderID">Duyệt đơn hàng</a></li>
-                <li><a class="dropdown-item text-danger open-modal" href="~/Order/Reject/@Model.OrderID">Từ chối đơn hàng</a></li>
-            }
+    @if (Model.Status != OrderStatusEnum.Completed
+       && Model.Status != OrderStatusEnum.Cancelled
+       && Model.Status != OrderStatusEnum.Rejected)
+    {
+        <div class="btn-group">
+            <button type="button"
+                    class="btn btn-primary dropdown-toggle"
+                    data-bs-toggle="dropdown">
+                <i class="bi bi-gear me-1"></i>
+                Xử lý đơn hàng
+            </button>
+            <ul class="dropdown-menu">
 
-            @if (Model.Status == OrderStatusEnum.Accepted)
-            {
-                <li><a class="dropdown-item open-modal" href="~/Order/Shipping/@Model.OrderID">Chuyển giao hàng</a></li>
-            }
+                @if (Model.Status == OrderStatusEnum.New)
+                {
+                    <li><a class="dropdown-item open-modal" href="~/Order/Accept/@Model.OrderID">Duyệt đơn hàng</a></li>
+                    <li><a class="dropdown-item text-danger open-modal" href="~/Order/Reject/@Model.OrderID">Từ chối đơn hàng</a></li>
+                }
 
-            @if (Model.Status == OrderStatusEnum.Shipping)
-            {
-                <li><a class="dropdown-item open-modal" href="~/Order/Finish/@Model.OrderID">Hoàn tất đơn hàng</a></li>
-            }
+                @if (Model.Status == OrderStatusEnum.Accepted)
+                {
+                    <li><a class="dropdown-item open-modal" href="~/Order/Shipping/@Model.OrderID">Chuyển giao hàng</a></li>
+                }
 
-            @if (Model.Status != OrderStatusEnum.Completed && Model.Status != OrderStatusEnum.Cancelled && Model.Status != OrderStatusEnum.Rejected)
-            {
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger open-modal" href="~/Order/Cancel/@Model.OrderID">Hủy đơn hàng</a></li>
-            }
-        </ul>
-    </div>
+                @if (Model.Status == OrderStatusEnum.Shipping)
+                {
+                    <li><a class="dropdown-item open-modal" href="~/Order/Finish/@Model.OrderID">Hoàn tất đơn hàng</a></li>
+                }
+
+                @if (Model.Status != OrderStatusEnum.Completed
+                        && Model.Status != OrderStatusEnum.Cancelled
+                        && Model.Status != OrderStatusEnum.Rejected)
+                {
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger open-modal" href="~/Order/Cancel/@Model.OrderID">Hủy đơn hàng</a></li>
+                }
+            </ul>
+        </div>
+    }
 
     @if (Model.Status == OrderStatusEnum.New || Model.Status == OrderStatusEnum.Cancelled || Model.Status == OrderStatusEnum.Rejected)
     {
